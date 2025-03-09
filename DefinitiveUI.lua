@@ -1,3 +1,14 @@
+--[[
+ .____                  ________ ___.    _____                           __                
+ |    |    __ _______   \_____  \\_ |___/ ____\_ __  ______ ____ _____ _/  |_  ___________ 
+ |    |   |  |  \__  \   /   |   \| __ \   __\  |  \/  ___// ___\\__  \\   __\/  _ \_  __ \
+ |    |___|  |  // __ \_/    |    \ \_\ \  | |  |  /\___ \\  \___ / __ \|  | (  <_> )  | \/
+ |_______ \____/(____  /\_______  /___  /__| |____//____  >\___  >____  /__|  \____/|__|   
+         \/          \/         \/    \/                \/     \/     \/                   
+          \_Welcome to LuaObfuscator.com   (Alpha 0.10.8) ~  Much Love, Ferib 
+
+]]--
+
 local cloneref = cloneref or function(x)
 	return x;
 end;
@@ -1114,12 +1125,12 @@ Library.Window = function(self, title, version, info, preset, closebind)
 					task.spawn(function()
 						while ScreenGui.Parent do
 							MainDropdown.BackgroundColor3 = ThemeColor;
-							Button.BackgroundTransparency = 0.5;
+							Button.BackgroundColor3 = ThemeColor;
 							task.wait();
 						end
 					end);
 					table.insert(Dropdown.Buttons, Button);
-					local Selected;
+					local Selected, DefaultSelected;
 					Dropdown.StoredValues = {};
 					Table.UpdateButton = function(self)
 						if Info.Multi then
@@ -1133,12 +1144,10 @@ Library.Window = function(self, title, version, info, preset, closebind)
 						end
 						if Selected then
 							if (Info.Multi and not Dropdown.Selected[Value]) then
-								Button.BackgroundColor3 = Color3.fromRGB(255, 255, 255);
-								Button.BackgroundTransparency = 0.3;
+								Button.BackgroundTransparency = 0.6;
 								Dropdown.Selected[Value] = true;
 							else
-								Button.BackgroundColor3 = Color3.fromRGB(255, 255, 255);
-								Button.BackgroundTransparency = 0.3;
+								Button.BackgroundTransparency = 0.6;
 							end
 						else
 							Button.BackgroundColor3 = ThemeColor or Color3.fromRGB(255, 0, 0);
@@ -1151,28 +1160,31 @@ Library.Window = function(self, title, version, info, preset, closebind)
 					if Info.Default then
 						for _, v in next, Dropdown.Buttons do
 							if (v.Text == Info.Default) then
-								v.BackgroundColor3 = Color3.fromRGB(255, 255, 255);
-								v.BackgroundTransparency = 0.3;
+								DefaultSelected = v;
+								v.BackgroundTransparency = 0.6;
 								table.insert(Dropdown.StoredValues, Info.Default);
 								Dropdown.Value = Info.Default;
 								break;
 							end
 						end
 					end
-					Library.Connections[#Library.Connections + 1] = Button.MouseEnter:Connect(function()
-						if not Selected then
-							Button.BackgroundColor3 = Color3.fromRGB(255, 255, 255);
-							Button.BackgroundTransparency = 0.3;
-						end
-					end);
-					Library.Connections[#Library.Connections + 1] = Button.MouseLeave:Connect(function()
-						if not Selected then
-							Button.BackgroundColor3 = ThemeColor or Color3.fromRGB(255, 255, 255);
-							Button.BackgroundTransparency = 0;
-						end
-					end);
 					Library.Connections[#Library.Connections + 1] = Button.MouseButton1Click:Connect(function()
 						local Try = not Selected;
+						if ((Dropdown.Value == Value) and (Info.Default == Value)) then
+							Dropdown.Value = nil;
+							local index = table.find(Dropdown.StoredValues, Value);
+							if index then
+								table.remove(Dropdown.StoredValues, index);
+							end
+							for _, OtherButton in next, Buttons do
+								OtherButton:UpdateButton();
+							end
+							Table:UpdateButton();
+							Library:SafeCallback(Dropdown.Callback, Dropdown.Value);
+							Library:SafeCallback(Dropdown.Changed, Dropdown.Value);
+							Buttons[Button] = Table;
+							return;
+						end
 						if ((Dropdown:GetActiveValues() == 1) and not Try and not Info.AllowNull) then
 							return;
 						end
