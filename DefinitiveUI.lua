@@ -986,7 +986,7 @@ function Library:Window(title, version, info, preset, closebind)
             end;
     
             Library.Connections[#Library.Connections + 1] = MainToggle.InputBegan:Connect(function(Input)
-                if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+                if (Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch) then
                     Toggle:SetValue(not Toggle.Value)
                     Library:AttemptSave();
                 end;
