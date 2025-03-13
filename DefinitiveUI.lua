@@ -958,16 +958,10 @@ function Library:Window(title, version, info, preset, closebind)
 
                 if Bool then
                     MainToggle.BackgroundColor3 = Color3.fromRGB(37, 37, 37)
-                    --FrameToggle1.BackgroundTransparency = 1
-                    --FrameToggle2.BackgroundTransparency = 1
-                    --FrameToggle3.BackgroundTransparency = 0
                     FrameToggleCircle.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
                     FrameToggleCircle.Position = UDim2.new(0.587, 0, 0.222000003, 0)
                 else
                     MainToggle.BackgroundColor3 = Color3.fromRGB(34, 34, 34)
-                    --FrameToggle1.BackgroundTransparency = 0
-                    --FrameToggle2.BackgroundTransparency = 0
-                    --FrameToggle3.BackgroundTransparency = 1
                     FrameToggleCircle.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
                     FrameToggleCircle.Position = UDim2.new(0.127000004, 0, 0.222000003, 0)
                 end
@@ -1023,7 +1017,7 @@ function Library:Window(title, version, info, preset, closebind)
 
             local Textbox = {
                 Value = '';
-                Default = Info.KeySave;
+                Default = Info.KeySave or '';
                 Type = 'Input';
                 Callback = Info.Callback or function(Value) end;
             };
@@ -1145,26 +1139,15 @@ function Library:Window(title, version, info, preset, closebind)
                 Func(Toggle.Value);
             end;
 
-            function Textbox:SetKey(key)
-                assignedKey = Enum.KeyCode[key]
-                KeybindLabel.Text = key
-            end
-
             function Toggle:SetValue(Bool)
                 Bool = (not not Bool);
 
                 if Bool then
                     MainToggle.BackgroundColor3 = Color3.fromRGB(37, 37, 37)
-                    --FrameToggle1.BackgroundTransparency = 1
-                    --FrameToggle2.BackgroundTransparency = 1
-                    --FrameToggle3.BackgroundTransparency = 0
                     FrameToggleCircle.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
                     FrameToggleCircle.Position = UDim2.new(0.587, 0, 0.222000003, 0)
                 else
                     MainToggle.BackgroundColor3 = Color3.fromRGB(34, 34, 34)
-                    --FrameToggle1.BackgroundTransparency = 0
-                    --FrameToggle2.BackgroundTransparency = 0
-                    --FrameToggle3.BackgroundTransparency = 1
                     FrameToggleCircle.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
                     FrameToggleCircle.Position = UDim2.new(0.127000004, 0, 0.222000003, 0)
                 end
@@ -1191,6 +1174,7 @@ function Library:Window(title, version, info, preset, closebind)
                 connection = InputService.InputBegan:Connect(function(input)
                     if not table.find(blacklistedKeybinds, input.KeyCode) and input.UserInputType == Enum.UserInputType.Keyboard then
                         assignedKey = input.KeyCode
+                        Textbox.Value = assignedKey.Name
                         KeybindLabel.Text = assignedKey.Name
                         SelectingKey = false
                         connection:Disconnect()
@@ -1198,6 +1182,27 @@ function Library:Window(title, version, info, preset, closebind)
                     Library:AttemptSave()
                 end)
             end)
+
+            function Textbox:RemoveText()
+                KeybindLabel.Text = "Enter Key"
+                Textbox.Value = ""
+                assignedKey = nil
+
+                Library:SafeCallback(Textbox.Callback, Textbox.Value);
+                Library:SafeCallback(Textbox.Changed, Textbox.Value);
+            end
+
+            function Textbox:SetValue(key)
+                KeybindLabel.Text = key == "" and "Enter Key" or key
+                if key ~= "" then
+                    assignedKey = Enum.KeyCode[key]
+                else
+                    assignedKey = nil
+                end
+                Textbox.Value = key
+                Library:SafeCallback(Textbox.Callback, Textbox.Value);
+                Library:SafeCallback(Textbox.Changed, Textbox.Value);
+            end
             
             Library.Connections[#Library.Connections + 1] = InputService.InputBegan:Connect(function(input, gameProcessed)
                 if gameProcessed or SelectingKey then return end
@@ -2448,6 +2453,14 @@ function Library:Window(title, version, info, preset, closebind)
                 end
             end)
 
+            function Textbox:RemoveText()
+                TextBox.Text = "Enter Text"
+                Textbox.Value = ""
+
+                Library:SafeCallback(Textbox.Callback, Textbox.Value);
+                Library:SafeCallback(Textbox.Changed, Textbox.Value);
+            end
+
             function Textbox:SetValue(Text)
                 if Info.MaxLength and #Text > Info.MaxLength then
                     Text = Text:sub(1, Info.MaxLength);
@@ -2460,7 +2473,7 @@ function Library:Window(title, version, info, preset, closebind)
                 end
     
                 Textbox.Value = Text;
-                TextBox.Text = Text;
+                TextBox.Text = Text == "" and "Enter Text" or Text;
     
                 Library:SafeCallback(Textbox.Callback, Textbox.Value);
                 Library:SafeCallback(Textbox.Changed, Textbox.Value);
@@ -2554,6 +2567,14 @@ function Library:Window(title, version, info, preset, closebind)
                 end
             end)
 
+            function Textbox:RemoveText()
+                BindText.Text = "Enter Key"
+                Textbox.Value = ""
+
+                Library:SafeCallback(Textbox.Callback, Textbox.Value);
+                Library:SafeCallback(Textbox.Changed, Textbox.Value);
+            end
+
             Library.Connections[#Library.Connections + 1] = Bind.MouseButton1Click:Connect(function()
                 BindText.Text = "..."
                 binding = true
@@ -2587,7 +2608,7 @@ function Library:Window(title, version, info, preset, closebind)
             function Textbox:SetValue(Text)
                 Textbox.Value = tostring(Text);
     
-                BindText.Text = tostring(Text);
+                BindText.Text = Text == "" and "Enter Key" or Text;
     
                 Library:SafeCallback(Textbox.Callback, Textbox.Value);
                 Library:SafeCallback(Textbox.Changed, Textbox.Value);
