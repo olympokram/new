@@ -1014,14 +1014,7 @@ function Library:Window(title, version, info, preset, closebind)
                 Addons = {},
                 Risky = Info.Risky,
             };
-
-            local Textbox = {
-                Value = '';
-                Default = Info.KeySave or '';
-                Type = 'Input';
-                Callback = Info.Callback or function(Value) end;
-            };
-
+			
             local MainToggle = Library:Create('TextButton', {
                 Name = "Toggle";
                 Parent = Tab;
@@ -1193,7 +1186,7 @@ function Library:Window(title, version, info, preset, closebind)
             end
 
             function Textbox:SetValue(key)
-                KeybindLabel.Text = key == "" and "Enter Key" or key
+                KeybindLabel.Text = key or ""
                 if key ~= "" then
                     assignedKey = Enum.KeyCode[key]
                 else
@@ -1224,8 +1217,7 @@ function Library:Window(title, version, info, preset, closebind)
             end
 
             Toggles[Idx] = Toggle
-            Options[Idx] = Textbox
-
+			
             Tab.CanvasSize = UDim2.new(0, 0, 0, TabLayout.AbsoluteContentSize.Y)
             return Toggle
         end
@@ -2608,7 +2600,7 @@ function Library:Window(title, version, info, preset, closebind)
             function Textbox:SetValue(Text)
                 Textbox.Value = tostring(Text);
     
-                BindText.Text = Text == "" and "Enter Key" or Text;
+                BindText.Text = Text or "";
     
                 Library:SafeCallback(Textbox.Callback, Textbox.Value);
                 Library:SafeCallback(Textbox.Changed, Textbox.Value);
