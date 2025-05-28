@@ -2465,7 +2465,7 @@ function Library:Window(title, version, info, preset, closebind)
                 end
     
                 Textbox.Value = Text;
-                TextBox.Text = Text == "" and "Enter Text" or Text;
+                TextBox.Text = Text or ""
     
                 Library:SafeCallback(Textbox.Callback, Textbox.Value);
                 Library:SafeCallback(Textbox.Changed, Textbox.Value);
