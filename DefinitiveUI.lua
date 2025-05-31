@@ -20,19 +20,20 @@ local RenderStepped = RunService.RenderStepped;
 local LocalPlayer = Players.LocalPlayer;
 local Mouse = LocalPlayer:GetMouse();
 local ThemeColor, GameID, LibraryBind = Color3.fromRGB(255, 0, 0), game.GameId, Enum.KeyCode.LeftControl
-local getgenv = getgenv or function() return {} end
+local getgenv = getgenv or function() return _G end
 
-if Destruct and Destruct.Unload then
-    Destruct:Unload()
+if getgenv().OldLibrary then
+    getgenv().OldLibrary:Destroy()
 end
 
-getgenv().Destruct = {}
+getgenv().OldLibrary = nil
 
 local Toggles, Options = {}, {}
 getgenv().Toggles = Toggles
 getgenv().Options = Options
 
 local ScreenGui = Instance.new("ScreenGui", CoreGui)
+getgenv().OldLibrary = ScreenGui
 ScreenGui.Name = "Horizon"
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
 
@@ -105,20 +106,6 @@ local function CheckDevice()
 end
 
 function Library:Unload()
-    if ScreenGui then
-        ScreenGui:Destroy()
-    end
-    for i,v in next, Library.Connections do
-		v:Disconnect()
-        Library.Connections[i] = nil
-	end
-    getgenv().Destruct = nil
-end
-
-function Destruct:Unload()
-    if ScreenGui:FindFirstChild("UI") then
-        ScreenGui["UI"]:Destroy()
-    end
     if ScreenGui then
         ScreenGui:Destroy()
     end
@@ -968,12 +955,12 @@ function Library:Window(title, version, info, preset, closebind)
 
                 Toggle.Value = Bool;
 
-                for _, Addon in next, Toggle.Addons do
+                --[[for _, Addon in next, Toggle.Addons do
                     if Addon.Type == 'KeyPicker' and Addon.SyncToggleState then
                         Addon.Toggled = Bool
                         Addon:Update()
                     end
-                end
+                end]]--
     
                 Library:SafeCallback(Toggle.Callback, Toggle.Value);
                 Library:SafeCallback(Toggle.Changed, Toggle.Value);
@@ -1006,9 +993,9 @@ function Library:Window(title, version, info, preset, closebind)
 
             local assignedKey = Info.KeyDefault or ""
 
-            local Toggle = {
+            local KToggle = {
                 Value = Info.Default or false;
-                Type = 'Toggle';
+                Type = 'KToggle';
     
                 Callback = Info.Callback or function(Value) end;
                 Addons = {},
@@ -1127,12 +1114,12 @@ function Library:Window(title, version, info, preset, closebind)
                 end
             end)
 
-            function Toggle:OnChanged(Func)
+            --[[function KToggle:OnChanged(Func)
                 Toggle.Changed = Func;
                 Func(Toggle.Value);
-            end;
+            end;]]--
 
-            function Toggle:SetValue(Bool)
+            function KToggle:SetValue(Bool)
                 Bool = (not not Bool);
 
                 if Bool then
@@ -1145,17 +1132,10 @@ function Library:Window(title, version, info, preset, closebind)
                     FrameToggleCircle.Position = UDim2.new(0.127000004, 0, 0.222000003, 0)
                 end
 
-                Toggle.Value = Bool;
-
-                for _, Addon in next, Toggle.Addons do
-                    if Addon.Type == 'KeyPicker' and Addon.SyncToggleState then
-                        Addon.Toggled = Bool
-                        Addon:Update()
-                    end
-                end
+                KToggle.Value = Bool;
     
-                Library:SafeCallback(Toggle.Callback, Toggle.Value);
-                Library:SafeCallback(Toggle.Changed, Toggle.Value);
+                Library:SafeCallback(KToggle.Callback, KToggle.Value);
+                --Library:SafeCallback(Toggle.Changed, Toggle.Value);
             end;
 
 
@@ -1167,7 +1147,7 @@ function Library:Window(title, version, info, preset, closebind)
                 connection = InputService.InputBegan:Connect(function(input)
                     if not table.find(blacklistedKeybinds, input.KeyCode) and input.UserInputType == Enum.UserInputType.Keyboard then
                         assignedKey = input.KeyCode
-                        Textbox.Value = assignedKey.Name
+                        KToggle.Text = assignedKey.Name
                         KeybindLabel.Text = assignedKey.Name
                         SelectingKey = false
                         connection:Disconnect()
@@ -1176,50 +1156,46 @@ function Library:Window(title, version, info, preset, closebind)
                 end)
             end)
 
-            function Textbox:RemoveText()
+            function KToggle:RemoveText()
                 KeybindLabel.Text = "Enter Key"
-                Textbox.Value = ""
+                KToggle.Text = ""
                 assignedKey = nil
-
-                Library:SafeCallback(Textbox.Callback, Textbox.Value);
-                Library:SafeCallback(Textbox.Changed, Textbox.Value);
             end
 
-            function Textbox:SetValue(key)
+            function KToggle:SetText(key)
                 KeybindLabel.Text = key or ""
+                assignedKey = key or "Enter Key"
+                KToggle.Text = key or ""
                 if key ~= "" then
-                    assignedKey = Enum.KeyCode[key]
+                    assignedKey = key and Enum.KeyCode[key] or ""
                 else
                     assignedKey = nil
                 end
-                Textbox.Value = key
-                Library:SafeCallback(Textbox.Callback, Textbox.Value);
-                Library:SafeCallback(Textbox.Changed, Textbox.Value);
             end
             
             Library.Connections[#Library.Connections + 1] = InputService.InputBegan:Connect(function(input, gameProcessed)
                 if gameProcessed or SelectingKey then return end
                 if input.KeyCode == assignedKey then
-                    Toggle:SetValue(not Toggle.Value)
+                    KToggle:SetValue(not KToggle.Value)
                 end
                 Library:AttemptSave()
             end)
 
             Library.Connections[#Library.Connections + 1] = MainToggle.MouseButton1Click:Connect(function()
                 if not SelectingKey then
-                    Toggle:SetValue(not Toggle.Value)
+                    KToggle:SetValue(not KToggle.Value)
                 end
                 Library:AttemptSave()
             end)
 
             if Info.Default then
-                Toggle:SetValue(true)
+                KToggle:SetValue(true)
             end
 
-            Toggles[Idx] = Toggle
+            Toggles[Idx] = KToggle
 			
             Tab.CanvasSize = UDim2.new(0, 0, 0, TabLayout.AbsoluteContentSize.Y)
-            return Toggle
+            return KToggle
         end
 
         function Container:NewSlider(Idx, Info)
