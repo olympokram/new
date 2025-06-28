@@ -962,7 +962,8 @@ function Library:Window(title, version, info, preset, closebind)
                     end
                 end]]--
     
-                Library:SafeCallback(Toggle.Callback, Toggle.Value);
+                --Library:SafeCallback(Toggle.Callback, Toggle.Value);
+		Toggle.Callback(Toggle.Value)
                 Library:SafeCallback(Toggle.Changed, Toggle.Value);
             end;
     
