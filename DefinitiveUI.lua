@@ -1,6 +1,6 @@
 local cloneref = cloneref or function(x) return x end
 
-local Library = {
+local lib = {
     RainbowColorValue = 0;
     HueSelectionPosition = 0;
     Connections = {};
@@ -39,15 +39,15 @@ ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
 
 task.spawn(function()
 	while ScreenGui.Parent do
-		Library.RainbowColorValue = Library.RainbowColorValue + 1 / 255
-		Library.HueSelectionPosition = Library.HueSelectionPosition + 1
+		lib.RainbowColorValue = lib.RainbowColorValue + 1 / 255
+		lib.HueSelectionPosition = lib.HueSelectionPosition + 1
 
-		if Library.RainbowColorValue >= 1 then
-			Library.RainbowColorValue = 0
+		if lib.RainbowColorValue >= 1 then
+			lib.RainbowColorValue = 0
 		end
 
-		if Library.HueSelectionPosition == 80 then
-			Library.HueSelectionPosition = 0
+		if lib.HueSelectionPosition == 80 then
+			lib.HueSelectionPosition = 0
 		end
 		task.wait()
 	end
@@ -65,13 +65,13 @@ local function AnimateText(display, text, repeatCount, delay)
             local randomChar = animatedRandom:sub(random, random)
             display.Text = displayText .. randomChar
             task.wait(delay)
-            if Library.AnimateText then
+            if lib.AnimateText then
                 break
             end
         end
         display.Text = displayText .. revealChar
         task.wait(delay)
-        if Library.AnimateText then
+        if lib.AnimateText then
             break
         end
     end
@@ -81,7 +81,7 @@ end
 local blacklistedKeybinds = {Enum.KeyCode.Unknown,Enum.KeyCode.W,Enum.KeyCode.A,Enum.KeyCode.S,Enum.KeyCode.D,
 Enum.KeyCode.Up,Enum.KeyCode.Left,Enum.KeyCode.Down,Enum.KeyCode.Right,Enum.KeyCode.Slash,Enum.KeyCode.Tab,Enum.KeyCode.Backspace,Enum.KeyCode.Escape}
 
-function Library:BlacklistKeybinds(keybinds)
+function lib:BlacklistKeybinds(keybinds)
     if type(keybinds) ~= "table" then 
         return warn("Invalid Argument") 
     end
@@ -105,18 +105,18 @@ local function CheckDevice()
     return "Unknow Device"
 end
 
-function Library:Unload()
+function lib:Unload()
     if ScreenGui then
         ScreenGui:Destroy()
     end
-    for i,v in next, Library.Connections do
+    for i,v in next, lib.Connections do
 		v:Disconnect()
-        Library.Connections[i] = nil
+        lib.Connections[i] = nil
 	end
     getgenv().Destruct = nil
 end
 
-function Library:MakeDraggable(topbarobject, object)
+function lib:MakeDraggable(topbarobject, object)
     local Dragging = nil
     local DragInput = nil
     local DragStart = nil
@@ -134,13 +134,13 @@ function Library:MakeDraggable(topbarobject, object)
         object.Position = pos
     end
 
-    Library.Connections[#Library.Connections + 1] = topbarobject.InputBegan:Connect(function(input)
+    lib.Connections[#lib.Connections + 1] = topbarobject.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             Dragging = true
             DragStart = input.Position
             StartPosition = object.Position
 
-            Library.Connections[#Library.Connections + 1] = input.Changed:Connect(function()
+            lib.Connections[#lib.Connections + 1] = input.Changed:Connect(function()
                 if input.UserInputState == Enum.UserInputState.End then
                     Dragging = false
                 end
@@ -148,13 +148,13 @@ function Library:MakeDraggable(topbarobject, object)
         end
     end)
 
-    Library.Connections[#Library.Connections + 1] = topbarobject.InputChanged:Connect(function(input)
+    lib.Connections[#lib.Connections + 1] = topbarobject.InputChanged:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
             DragInput = input
         end
     end)
 
-    Library.Connections[#Library.Connections + 1] = InputService.InputChanged:Connect(function(input)
+    lib.Connections[#lib.Connections + 1] = InputService.InputChanged:Connect(function(input)
         if input == DragInput and Dragging then
             Update(input)
         end
@@ -187,7 +187,7 @@ end;
 
 local notifications = {}
 
-function Library:Notify(text, delay, size)
+function lib:Notify(text, delay, size)
     local Delay = delay or 5
 
     local ScreenGui = Instance.new("ScreenGui", CoreGui)
@@ -241,7 +241,7 @@ function Library:Notify(text, delay, size)
     end)
 end
 
-function Library:CreateLabel(label)
+function lib:CreateLabel(label)
     assert(label.Text, "Missing text")
     assert(label.Title, "Missing title")
 
@@ -285,12 +285,12 @@ function Library:CreateLabel(label)
     return MainLabel, MainFrame
 end
 
-function Library:SafeCallback(f, ...)
+function lib:SafeCallback(f, ...)
     if (not f) then
         return;
     end;
 
-    if not Library.Debug then
+    if not lib.Debug then
         return f(...);
     end;
 
@@ -300,20 +300,20 @@ function Library:SafeCallback(f, ...)
         local _, i = event:find(":%d+:");
 
         if not i then
-            return Library:Notify(event, 3, nil);
+            return lib:Notify(event, 3, nil);
         end;
 
-        return Library:Notify(event:sub(i + 1), 3, nil);
+        return lib:Notify(event:sub(i + 1), 3, nil);
     end;
 end;
 
-function Library:AttemptSave()
-    if Library.SaveManager then
-        Library.SaveManager:Save();
+function lib:AttemptSave()
+    if lib.SaveManager then
+        lib.SaveManager:Save();
     end;
 end;
 
-function Library:Create(Class, Properties)
+function lib:Create(Class, Properties)
     local _Instance = Class;
 
     if type(Class) == 'string' then
@@ -329,11 +329,11 @@ end;
 
 local BaseAddons = {};
 
-function Library:ChangeBind(key)
+function lib:ChangeBind(key)
 	LibraryBind = key
 end
 
-function Library:Window(title, version, info, preset, closebind)
+function lib:Window(title, version, info, preset, closebind)
     LibraryBind = closebind or Enum.KeyCode.LeftShift
     ThemeColor = preset or Color3.fromRGB(255, 0, 0)
     fs = false
@@ -356,7 +356,7 @@ function Library:Window(title, version, info, preset, closebind)
     Main.ClipsDescendants = false
     Main.Visible = true
 
-    Library:Create("UICorner", {
+    lib:Create("UICorner", {
         CornerRadius = UDim.new(0.1,0),
         Parent = Main
     })
@@ -371,16 +371,16 @@ function Library:Window(title, version, info, preset, closebind)
     background.BackgroundTransparency = 1
     background.ZIndex = 1
 
-    Library:Create("UICorner", {
+    lib:Create("UICorner", {
         CornerRadius = UDim.new(0.1,0),
         Parent = background
     })
 
-    function Library:ChangeBackground(id)
+    function lib:ChangeBackground(id)
         background.Image = "rbxassetid://" .. tostring(id)
     end
 
-    function Library:RemoveBackground()
+    function lib:RemoveBackground()
         background.Image = ""
     end
 
@@ -403,7 +403,7 @@ function Library:Window(title, version, info, preset, closebind)
     close.Image = "rbxassetid://3926305904"
     close.ImageRectOffset = Vector2.new(284, 4)
     close.ImageRectSize = Vector2.new(24, 24)
-    Library.Connections[#Library.Connections + 1] = close.MouseButton1Click:Connect(function()
+    lib.Connections[#lib.Connections + 1] = close.MouseButton1Click:Connect(function()
         Main.Visible = false
     end)
 
@@ -444,7 +444,7 @@ function Library:Window(title, version, info, preset, closebind)
             for _, v in ipairs(textDisplays) do
                 AnimateText(Title, v, repeatCount, delay)
             end
-            if Library.AnimateText then
+            if lib.AnimateText then
                 Title.Text = title .. " " .. Version
                 break
             end
@@ -468,16 +468,16 @@ function Library:Window(title, version, info, preset, closebind)
     DragFrame.BackgroundTransparency = 1.000
     DragFrame.Size = UDim2.new(0, 560, 0, 41)
 
-    Library:MakeDraggable(DragFrame, Main)
+    lib:MakeDraggable(DragFrame, Main)
 
-    Library.Connections[#Library.Connections + 1] = InputService.InputBegan:Connect(function(io, p)
+    lib.Connections[#lib.Connections + 1] = InputService.InputBegan:Connect(function(io, p)
         if io.KeyCode == LibraryBind and not table.find(blacklistedKeybinds, io.KeyCode) then
             if Main.Visible then
                 Main.Visible = false
 			elseif Main.Visible == false then
                 Main.Visible = true
             end
-            task.spawn(function()
+            --[[task.spawn(function()
                 if Drawing and Drawing.new then
                     local State = InputService.MouseIconEnabled;
 
@@ -515,7 +515,7 @@ function Library:Window(title, version, info, preset, closebind)
                     Cursor:Remove();
                     CursorOutline:Remove();
                 end
-            end)
+            end)]]--
             task.spawn(function()
                 while Main and Main.Visible and Main.Parent do
                     if Main and Main.Visible and CheckDevice() == "PC" and InputService.MouseBehavior ~= Enum.MouseBehavior.Default then
@@ -532,7 +532,7 @@ function Library:Window(title, version, info, preset, closebind)
     if CheckDevice() == "Mobile" or CheckDevice() == "Emulator" then
         local rbxguix = CoreGui:FindFirstChild("Horizon")
         if not rbxguix then
-            warn("Library not found!")
+            warn("lib not found!")
             return
         end
         local QuickCapture = Instance.new("TextButton", rbxguix)
@@ -546,10 +546,10 @@ function Library:Window(title, version, info, preset, closebind)
         QuickCapture.TextColor3 = Color3.fromRGB(0, 255, 0)
         QuickCapture.TextSize = 20.000
         QuickCapture.TextWrapped = true
-        QuickCapture.Draggable = Library and Library.OCbtn or false
+        QuickCapture.Draggable = lib and lib.OCbtn or false
 
-        Library.Connections = Library.Connections or {}
-        table.insert(Library.Connections, QuickCapture.MouseButton1Click:Connect(function()
+        lib.Connections = lib.Connections or {}
+        table.insert(lib.Connections, QuickCapture.MouseButton1Click:Connect(function()
             if Main and typeof(Main.Visible) == "boolean" then
                 Main.Visible = not Main.Visible
                 QuickCapture.Text = Main.Visible and "ON" or "OFF"
@@ -557,7 +557,7 @@ function Library:Window(title, version, info, preset, closebind)
                 Color3.fromRGB(0, 255, 0) or
                 Color3.fromRGB(255, 0, 0)
             else
-                warn("Library property is missing!")
+                warn("lib property is missing!")
             end
         end))
     end
@@ -565,11 +565,11 @@ function Library:Window(title, version, info, preset, closebind)
     TabFolder.Name = "TabFolder"
     TabFolder.Parent = Main
 
-    function Library:ChangePresetColor(toch)
+    function lib:ChangePresetColor(toch)
         ThemeColor = toch
     end
 
-    function Library:Notification(texttitle, textdesc, delay, autodestroy)
+    function lib:Notification(texttitle, textdesc, delay, autodestroy)
         local NotificationHold = Instance.new("TextButton")
         local NotificationFrame = Instance.new("Frame")
         local OkayBtn = Instance.new("TextButton")
@@ -657,14 +657,14 @@ function Library:Window(title, version, info, preset, closebind)
         NotificationDesc.TextXAlignment = Enum.TextXAlignment.Left
         NotificationDesc.TextYAlignment = Enum.TextYAlignment.Top
 
-        Library.Connections["Notify"] = OkayBtn.MouseButton1Click:Connect(function()
+        lib.Connections["Notify"] = OkayBtn.MouseButton1Click:Connect(function()
             if not autoDestroy then
                 NotificationFrame.Size = UDim2.new(0, 164, 0, 193)
                 task.wait(0.5)
                 NotificationHold:Destroy()
-                if Library.Connections["Notify"] then
-                    Library.Connections["Notify"]:Disconnect()
-                    Library.Connections["Notify"] = nil
+                if lib.Connections["Notify"] then
+                    lib.Connections["Notify"]:Disconnect()
+                    lib.Connections["Notify"] = nil
                 end
             end
         end)
@@ -672,9 +672,9 @@ function Library:Window(title, version, info, preset, closebind)
         if autoDestroy then
             task.delay(delay, function()
                 NotificationHold:Destroy()
-                if Library.Connections["Notify"] then
-                    Library.Connections["Notify"]:Disconnect()
-                    Library.Connections["Notify"] = nil
+                if lib.Connections["Notify"] then
+                    lib.Connections["Notify"]:Disconnect()
+                    lib.Connections["Notify"] = nil
                 end
             end)
         end
@@ -753,7 +753,7 @@ function Library:Window(title, version, info, preset, closebind)
             Tab.Visible = true
         end
 
-        Library.Connections[#Library.Connections + 1] = TabBtn.MouseButton1Click:Connect(function()
+        lib.Connections[#lib.Connections + 1] = TabBtn.MouseButton1Click:Connect(function()
             for i, v in next, TabFolder:GetChildren() do
                 if v.Name == "Tab" then
                     v.Visible = false
@@ -812,11 +812,11 @@ function Library:Window(title, version, info, preset, closebind)
             local Button = {}
 
             Button.Click = function()
-                Library:SafeCallback(callback)
+                lib:SafeCallback(callback)
             end
 
-            Library.Connections[#Library.Connections + 1] = MainButton.MouseButton1Click:Connect(function()
-                Library:SafeCallback(callback)
+            lib.Connections[#lib.Connections + 1] = MainButton.MouseButton1Click:Connect(function()
+                lib:SafeCallback(callback)
             end)
 
             Tab.CanvasSize = UDim2.new(0, 0, 0, TabLayout.AbsoluteContentSize.Y)
@@ -836,7 +836,7 @@ function Library:Window(title, version, info, preset, closebind)
                 Risky = Info.Risky,
             };
 
-            local MainToggle = Library:Create('TextButton', {
+            local MainToggle = lib:Create('TextButton', {
                 Name = "Toggle";
                 Parent = Tab;
                 BackgroundTransparency = 0.5;
@@ -849,13 +849,13 @@ function Library:Window(title, version, info, preset, closebind)
                 TextSize = 14
             });
 
-            local ToggleCorner = Library:Create('UICorner', {
+            local ToggleCorner = lib:Create('UICorner', {
                 CornerRadius = UDim.new(0, 5);
                 Name = "ToggleCorner";
                 Parent = MainToggle
             });
 
-            local ToggleTitle = Library:Create('TextLabel', {
+            local ToggleTitle = lib:Create('TextLabel', {
                 Name = "ToggleTitle";
                 Parent = MainToggle;
                 BackgroundColor3 = Color3.fromRGB(255, 255, 255);
@@ -869,7 +869,7 @@ function Library:Window(title, version, info, preset, closebind)
                 TextXAlignment = Enum.TextXAlignment.Left
             });
 
-            local FrameToggle1 = Library:Create('Frame', {
+            local FrameToggle1 = lib:Create('Frame', {
                 Name = "FrameToggle1";
                 Parent = MainToggle;
                 BackgroundTransparency = 0.5;
@@ -878,12 +878,12 @@ function Library:Window(title, version, info, preset, closebind)
                 Size = UDim2.new(0, 37, 0, 18)
             });
 
-            local FrameToggle1Corner = Library:Create('UICorner', {
+            local FrameToggle1Corner = lib:Create('UICorner', {
                 Name = "FrameToggle1Corner";
                 Parent = FrameToggle1
             });
 
-            local FrameToggle2 = Library:Create('Frame', {
+            local FrameToggle2 = lib:Create('Frame', {
                 Name = "FrameToggle2";
                 Parent = FrameToggle1;
                 BackgroundTransparency = 0.5;
@@ -892,12 +892,12 @@ function Library:Window(title, version, info, preset, closebind)
                 Size = UDim2.new(0, 33, 0, 14)
             });
 
-            local FrameToggle2Corner = Library:Create('UICorner', {
+            local FrameToggle2Corner = lib:Create('UICorner', {
                 Name = "FrameToggle2Corner";
                 Parent = FrameToggle2
             });
 
-            local FrameToggle3 = Library:Create('Frame', {
+            local FrameToggle3 = lib:Create('Frame', {
                 Name = "FrameToggle3";
                 Parent = FrameToggle1;
                 BackgroundColor3 = ThemeColor;
@@ -906,12 +906,12 @@ function Library:Window(title, version, info, preset, closebind)
                 Size = UDim2.new(0, 37, 0, 18)
             });
 
-            local FrameToggle3Corner = Library:Create('UICorner', {
+            local FrameToggle3Corner = lib:Create('UICorner', {
                 Name = "FrameToggle3Corner";
                 Parent = FrameToggle3
             });
 
-            local FrameToggleCircle = Library:Create('Frame', {
+            local FrameToggleCircle = lib:Create('Frame', {
                 Name = "FrameToggleCircle";
                 Parent = FrameToggle1;
                 BackgroundTransparency = 0;
@@ -920,7 +920,7 @@ function Library:Window(title, version, info, preset, closebind)
                 Size = UDim2.new(0, 10, 0, 10)
             });
 
-            local FrameToggleCircleCorner = Library:Create('UICorner', {
+            local FrameToggleCircleCorner = lib:Create('UICorner', {
                 Name = "FrameToggleCircleCorner";
                 Parent = FrameToggleCircle
             });
@@ -961,16 +961,16 @@ function Library:Window(title, version, info, preset, closebind)
                         Addon:Update()
                     end
                 end]]--
-    
-                --Library:SafeCallback(Toggle.Callback, Toggle.Value);
-		Toggle.Callback(Toggle.Value)
-                Library:SafeCallback(Toggle.Changed, Toggle.Value);
+
+                Toggle.Callback(Toggle.Value)
+                --lib:SafeCallback(Toggle.Callback, Toggle.Value);
+                lib:SafeCallback(Toggle.Changed, Toggle.Value);
             end;
     
-            Library.Connections[#Library.Connections + 1] = MainToggle.InputBegan:Connect(function(Input)
+            lib.Connections[#lib.Connections + 1] = MainToggle.InputBegan:Connect(function(Input)
                 if (Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch) then
                     Toggle:SetValue(not Toggle.Value)
-                    Library:AttemptSave();
+                    lib:AttemptSave();
                 end;
             end);
 
@@ -1003,7 +1003,7 @@ function Library:Window(title, version, info, preset, closebind)
                 Risky = Info.Risky,
             };
 			
-            local MainToggle = Library:Create('TextButton', {
+            local MainToggle = lib:Create('TextButton', {
                 Name = "Toggle";
                 Parent = Tab;
                 BackgroundTransparency = 0.5;
@@ -1016,13 +1016,13 @@ function Library:Window(title, version, info, preset, closebind)
                 TextSize = 14
             });
 
-            local ToggleCorner = Library:Create('UICorner', {
+            local ToggleCorner = lib:Create('UICorner', {
                 CornerRadius = UDim.new(0, 5);
                 Name = "ToggleCorner";
                 Parent = MainToggle
             });
 
-            local ToggleTitle = Library:Create('TextLabel', {
+            local ToggleTitle = lib:Create('TextLabel', {
                 Name = "ToggleTitle";
                 Parent = MainToggle;
                 BackgroundColor3 = Color3.fromRGB(255, 255, 255);
@@ -1036,7 +1036,7 @@ function Library:Window(title, version, info, preset, closebind)
                 TextXAlignment = Enum.TextXAlignment.Left
             });
 
-            local FrameToggle1 = Library:Create('Frame', {
+            local FrameToggle1 = lib:Create('Frame', {
                 Name = "FrameToggle1";
                 Parent = MainToggle;
                 BackgroundTransparency = 0.5;
@@ -1045,12 +1045,12 @@ function Library:Window(title, version, info, preset, closebind)
                 Size = UDim2.new(0, 37, 0, 18)
             });
 
-            local FrameToggle1Corner = Library:Create('UICorner', {
+            local FrameToggle1Corner = lib:Create('UICorner', {
                 Name = "FrameToggle1Corner";
                 Parent = FrameToggle1
             });
 
-            local FrameToggle2 = Library:Create('Frame', {
+            local FrameToggle2 = lib:Create('Frame', {
                 Name = "FrameToggle2";
                 Parent = FrameToggle1;
                 BackgroundTransparency = 0.5;
@@ -1059,12 +1059,12 @@ function Library:Window(title, version, info, preset, closebind)
                 Size = UDim2.new(0, 33, 0, 14)
             });
 
-            local FrameToggle2Corner = Library:Create('UICorner', {
+            local FrameToggle2Corner = lib:Create('UICorner', {
                 Name = "FrameToggle2Corner";
                 Parent = FrameToggle2
             });
 
-            local FrameToggle3 = Library:Create('Frame', {
+            local FrameToggle3 = lib:Create('Frame', {
                 Name = "FrameToggle3";
                 Parent = FrameToggle1;
                 BackgroundColor3 = ThemeColor;
@@ -1072,12 +1072,12 @@ function Library:Window(title, version, info, preset, closebind)
                 Size = UDim2.new(0, 37, 0, 18)
             });
 
-            local FrameToggle3Corner = Library:Create('UICorner', {
+            local FrameToggle3Corner = lib:Create('UICorner', {
                 Name = "FrameToggle3Corner";
                 Parent = FrameToggle3
             });
 
-            local FrameToggleCircle = Library:Create('Frame', {
+            local FrameToggleCircle = lib:Create('Frame', {
                 Name = "FrameToggleCircle";
                 Parent = FrameToggle1;
                 BackgroundTransparency = 0.5;
@@ -1087,7 +1087,7 @@ function Library:Window(title, version, info, preset, closebind)
                 Size = UDim2.new(0, 10, 0, 10)
             });
 
-            local FrameToggleCircleCorner = Library:Create('UICorner', {
+            local FrameToggleCircleCorner = lib:Create('UICorner', {
                 Name = "FrameToggleCircleCorner";
                 Parent = FrameToggleCircle
             });
@@ -1135,8 +1135,8 @@ function Library:Window(title, version, info, preset, closebind)
 
                 KToggle.Value = Bool;
     
-                Library:SafeCallback(KToggle.Callback, KToggle.Value);
-                --Library:SafeCallback(Toggle.Changed, Toggle.Value);
+                lib:SafeCallback(KToggle.Callback, KToggle.Value);
+                --lib:SafeCallback(Toggle.Changed, Toggle.Value);
             end;
 
 
@@ -1153,7 +1153,7 @@ function Library:Window(title, version, info, preset, closebind)
                         SelectingKey = false
                         connection:Disconnect()
                     end
-                    Library:AttemptSave()
+                    lib:AttemptSave()
                 end)
             end)
 
@@ -1174,19 +1174,19 @@ function Library:Window(title, version, info, preset, closebind)
                 end
             end
             
-            Library.Connections[#Library.Connections + 1] = InputService.InputBegan:Connect(function(input, gameProcessed)
+            lib.Connections[#lib.Connections + 1] = InputService.InputBegan:Connect(function(input, gameProcessed)
                 if gameProcessed or SelectingKey then return end
                 if input.KeyCode == assignedKey then
                     KToggle:SetValue(not KToggle.Value)
                 end
-                Library:AttemptSave()
+                lib:AttemptSave()
             end)
 
-            Library.Connections[#Library.Connections + 1] = MainToggle.MouseButton1Click:Connect(function()
+            lib.Connections[#lib.Connections + 1] = MainToggle.MouseButton1Click:Connect(function()
                 if not SelectingKey then
                     KToggle:SetValue(not KToggle.Value)
                 end
-                Library:AttemptSave()
+                lib:AttemptSave()
             end)
 
             if Info.Default then
@@ -1360,38 +1360,38 @@ function Library:Window(title, version, info, preset, closebind)
                 RealValue = (((pos.X.Scale * Info.Max) / Info.Max) * (Info.Max - Info.Min) + Info.Min)
                 Slider.Value = (Info.Precise and string.format("%.1f", tostring(RealValue))) or (math.floor(RealValue))
                 ValueLabel.Text = tostring(Slider.Value)
-                Library:SafeCallback(Slider.Callback, Slider.Value)
-                Library:SafeCallback(Slider.Changed, Slider.Value)
+                lib:SafeCallback(Slider.Callback, Slider.Value)
+                lib:SafeCallback(Slider.Changed, Slider.Value)
             end
 
-            Library.Connections[#Library.Connections + 1] = MainSlider.InputBegan:Connect(function(Pressed)
+            lib.Connections[#lib.Connections + 1] = MainSlider.InputBegan:Connect(function(Pressed)
                 if Pressed.UserInputType == Enum.UserInputType.MouseButton1 or Pressed.UserInputType == Enum.UserInputType.Touch then
                     Dragging = true
                     IsSliding = false
                     DragSlider(Pressed)
-                    Library:AttemptSave();
+                    lib:AttemptSave();
                 end
             end)
 
-            Library.Connections[#Library.Connections + 1] = MainSlider.InputEnded:Connect(function(Pressed)
+            lib.Connections[#lib.Connections + 1] = MainSlider.InputEnded:Connect(function(Pressed)
                 if Pressed.UserInputType == Enum.UserInputType.MouseButton1 or Pressed.UserInputType == Enum.UserInputType.Touch then
                     Dragging = false
                     IsSliding = false
                 end
             end)
 
-            Library.Connections[#Library.Connections + 1] = InputService.InputChanged:Connect(function(Pressed)
+            lib.Connections[#lib.Connections + 1] = InputService.InputChanged:Connect(function(Pressed)
                 if Dragging and (Pressed.UserInputType == Enum.UserInputType.MouseMovement or Pressed.UserInputType == Enum.UserInputType.Touch) then
                     DragSlider(Pressed)
-                    Library:AttemptSave();
+                    lib:AttemptSave();
                 end
             end)
 
-            Library.Connections[#Library.Connections + 1] = MainSlider.MouseEnter:Connect(function()
+            lib.Connections[#lib.Connections + 1] = MainSlider.MouseEnter:Connect(function()
                 HideColor.Size = UDim2.new(0, 0, 0, 0)
             end)
 
-            Library.Connections[#Library.Connections + 1] = MainSlider.MouseLeave:Connect(function()
+            lib.Connections[#lib.Connections + 1] = MainSlider.MouseLeave:Connect(function()
                 if not Dragging then
                     HideColor.Size = UDim2.new(1, 1, 1, 1)
                 end
@@ -1415,8 +1415,8 @@ function Library:Window(title, version, info, preset, closebind)
                 ValueLabel.Text = tostring(Slider.Value)
                 UpdateSlider(Slider.Value)
     
-                Library:SafeCallback(Slider.Callback, Slider.Value);
-                Library:SafeCallback(Slider.Changed, Slider.Value);
+                lib:SafeCallback(Slider.Callback, Slider.Value);
+                lib:SafeCallback(Slider.Changed, Slider.Value);
             end;
 
             Options[Idx] = Slider;
@@ -1458,7 +1458,7 @@ function Library:Window(title, version, info, preset, closebind)
                 end;
             end;
 
-            local MainDropdown = Library:Create('Frame', {
+            local MainDropdown = lib:Create('Frame', {
                 Parent = Tab;
                 BackgroundTransparency = 0.5;
                 ClipsDescendants = true;
@@ -1466,7 +1466,7 @@ function Library:Window(title, version, info, preset, closebind)
                 Size = UDim2.new(0, 363, 0, 42)
             })
 
-            local DropdownButton = Library:Create("TextButton", {
+            local DropdownButton = lib:Create("TextButton", {
                 Parent = MainDropdown;
                 BackgroundColor3 = Color3.fromRGB(255, 255, 255);
                 BackgroundTransparency = 1.000;
@@ -1477,12 +1477,12 @@ function Library:Window(title, version, info, preset, closebind)
                 TextSize = 14.000
             })
 
-            local DropdownCorner = Library:Create('UICorner', {
+            local DropdownCorner = lib:Create('UICorner', {
                 CornerRadius = UDim.new(0, 5);
                 Parent = MainDropdown
             })
 
-            local DropdownTitle = Library:Create('TextLabel', {
+            local DropdownTitle = lib:Create('TextLabel', {
                 Name = "ButtonTitle";
                 Parent = MainDropdown;
                 BackgroundColor3 = Color3.fromRGB(255, 255, 255);
@@ -1496,7 +1496,7 @@ function Library:Window(title, version, info, preset, closebind)
                 TextXAlignment = Enum.TextXAlignment.Left
             })
 
-            local DropdownArrow = Library:Create('ImageLabel', {
+            local DropdownArrow = lib:Create('ImageLabel', {
                 Parent = DropdownTitle;
                 BackgroundColor3 = Color3.fromRGB(255, 255, 255);
                 BackgroundTransparency = 1.000;
@@ -1523,7 +1523,7 @@ function Library:Window(title, version, info, preset, closebind)
                 Dropdown.Flag = not Dropdown.Flag
             end)
 
-            local Scrolling = Library:Create('ScrollingFrame', {
+            local Scrolling = lib:Create('ScrollingFrame', {
                 Parent = DropdownTitle;
                 Active = true;
                 BackgroundColor3 = Color3.fromRGB(255, 255, 255);
@@ -1535,7 +1535,7 @@ function Library:Window(title, version, info, preset, closebind)
                 ScrollBarThickness = 3
             });
 
-            local Layout = Library:Create("UIListLayout", {
+            local Layout = lib:Create("UIListLayout", {
                 Parent = Scrolling;
                 SortOrder = Enum.SortOrder.LayoutOrder
             })
@@ -1607,7 +1607,7 @@ function Library:Window(title, version, info, preset, closebind)
 
                     Scrolling.CanvasSize = UDim2.new(0, 0, 0, Layout.AbsoluteContentSize.Y + 25)
     
-                    local Button = Library:Create('TextButton', {
+                    local Button = lib:Create('TextButton', {
                         Parent = Scrolling;
                         ClipsDescendants = true;
                         Size = UDim2.new(0, 335, 0, 25);
@@ -1621,7 +1621,7 @@ function Library:Window(title, version, info, preset, closebind)
                         LayoutOrder = Idx
                     });
 
-                    local ButtonCorner = Library:Create('UICorner', {
+                    local ButtonCorner = lib:Create('UICorner', {
                         CornerRadius = UDim.new(0, 4);
                         Parent = Button
                     });
@@ -1684,21 +1684,21 @@ function Library:Window(title, version, info, preset, closebind)
                     end
 
                     --[[
-                    Library.Connections[#Library.Connections + 1] = Button.MouseEnter:Connect(function()
+                    lib.Connections[#lib.Connections + 1] = Button.MouseEnter:Connect(function()
                         if not Selected and Button ~= DefaultSelected then
                             --Button.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
                             Button.BackgroundTransparency = 0.6
                         end
                     end)
 
-                    Library.Connections[#Library.Connections + 1] = Button.MouseLeave:Connect(function()
+                    lib.Connections[#lib.Connections + 1] = Button.MouseLeave:Connect(function()
                         if not Selected and Button ~= DefaultSelected then
                             --Button.BackgroundColor3 = ThemeColor or Color3.fromRGB(255, 255, 255)
                             Button.BackgroundTransparency = 0
                         end
                     end)]]--
 
-                    Library.Connections[#Library.Connections + 1] = Button.MouseButton1Click:Connect(function()
+                    lib.Connections[#lib.Connections + 1] = Button.MouseButton1Click:Connect(function()
                         local Try = not Selected
 
                         if Dropdown.Value == Value and Info.Default == Value then
@@ -1714,8 +1714,8 @@ function Library:Window(title, version, info, preset, closebind)
                             end
                         
                             Table:UpdateButton()
-                            Library:SafeCallback(Dropdown.Callback, Dropdown.Value)
-                            Library:SafeCallback(Dropdown.Changed, Dropdown.Value)
+                            lib:SafeCallback(Dropdown.Callback, Dropdown.Value)
+                            lib:SafeCallback(Dropdown.Changed, Dropdown.Value)
                             Buttons[Button] = Table
                             return
                         end
@@ -1754,11 +1754,11 @@ function Library:Window(title, version, info, preset, closebind)
                         end
 
                         Table:UpdateButton()
-                        Library:SafeCallback(Dropdown.Callback, Dropdown.Value)
-                        Library:SafeCallback(Dropdown.Changed, Dropdown.Value)
+                        lib:SafeCallback(Dropdown.Callback, Dropdown.Value)
+                        lib:SafeCallback(Dropdown.Changed, Dropdown.Value)
                         Buttons[Button] = Table
                         
-                        Library:AttemptSave()
+                        lib:AttemptSave()
                     end)
                 end
             end
@@ -1785,13 +1785,13 @@ function Library:Window(title, version, info, preset, closebind)
     
             function Dropdown:OpenDropdown()
                 --ListOuter.Visible = true;
-                --Library.OpenedFrames[ListOuter] = true;
+                --lib.OpenedFrames[ListOuter] = true;
                 --DropdownArrow.Rotation = 180;
             end;
     
             function Dropdown:CloseDropdown()
                 --ListOuter.Visible = false;
-                --Library.OpenedFrames[ListOuter] = nil;
+                --lib.OpenedFrames[ListOuter] = nil;
                 --DropdownArrow.Rotation = 0;
             end;
     
@@ -1819,8 +1819,8 @@ function Library:Window(title, version, info, preset, closebind)
     
                 Dropdown:BuildDropdownList();
     
-                Library:SafeCallback(Dropdown.Callback, Dropdown.Value);
-                Library:SafeCallback(Dropdown.Changed, Dropdown.Value);
+                lib:SafeCallback(Dropdown.Callback, Dropdown.Value);
+                lib:SafeCallback(Dropdown.Changed, Dropdown.Value);
             end;
         
             --table.insert(Dropdown.Values, Info.Default)
@@ -1830,8 +1830,8 @@ function Library:Window(title, version, info, preset, closebind)
             Dropdown.Value = Info.Default
             --end
 
-            Library:SafeCallback(Dropdown.Callback, Dropdown.Value);
-            Library:SafeCallback(Dropdown.Changed, Dropdown.Value);
+            lib:SafeCallback(Dropdown.Callback, Dropdown.Value);
+            lib:SafeCallback(Dropdown.Changed, Dropdown.Value);
 
             Dropdown:BuildDropdownList();
             
@@ -1850,8 +1850,8 @@ function Library:Window(title, version, info, preset, closebind)
             elseif type(Info.Default) == 'number' and Dropdown.Values[Info.Default] ~= nil then
                 table.insert(Defaults, Info.Default)
             end]]--
-    
             Options[Idx] = Dropdown;
+            print(Options[Idx])
 
             Tab.CanvasSize = UDim2.new(0, 0, 0, TabLayout.AbsoluteContentSize.Y)
             return Dropdown;
@@ -2119,11 +2119,11 @@ function Library:Window(title, version, info, preset, closebind)
                 BoxColor.BackgroundColor3 = Color3.fromHSV(ColorH, ColorS, ColorV)
                 Color.BackgroundColor3 = Color3.fromHSV(ColorH, 1, 1)
         
-                Library:SafeCallback(ColorPicker.Callback, ColorPicker.Value);
-                Library:SafeCallback(ColorPicker.Changed, ColorPicker.Value);
+                lib:SafeCallback(ColorPicker.Callback, ColorPicker.Value);
+                lib:SafeCallback(ColorPicker.Changed, ColorPicker.Value);
             end;
 
-            Library.Connections[#Library.Connections + 1] = ColorpickerBtn.MouseButton1Click:Connect(function()
+            lib.Connections[#lib.Connections + 1] = ColorpickerBtn.MouseButton1Click:Connect(function()
                 if ColorPickerToggled == false then
                     ColorSelection.Visible = true
                     HueSelection.Visible = true
@@ -2144,8 +2144,8 @@ function Library:Window(title, version, info, preset, closebind)
                 BoxColor.BackgroundColor3 = Color3.fromHSV(ColorH, ColorS, ColorV)
                 Color.BackgroundColor3 = Color3.fromHSV(ColorH, 1, 1)
 
-                Library:SafeCallback(ColorPicker.Callback, BoxColor.BackgroundColor3)
-                Library:SafeCallback(ColorPicker.Changed, BoxColor.BackgroundColor3)
+                lib:SafeCallback(ColorPicker.Callback, BoxColor.BackgroundColor3)
+                lib:SafeCallback(ColorPicker.Changed, BoxColor.BackgroundColor3)
             end
 
             ColorH = 1 - (math.clamp(HueSelection.AbsolutePosition.Y - Hue.AbsolutePosition.Y, 0, Hue.AbsoluteSize.Y) / Hue.AbsoluteSize.Y)
@@ -2155,10 +2155,10 @@ function Library:Window(title, version, info, preset, closebind)
             ColorPicker.Value = Info.Default
             BoxColor.BackgroundColor3 = Info.Default
             Color.BackgroundColor3 = Info.Default
-            Library:SafeCallback(ColorPicker.Callback, ColorPicker.Value);
-            Library:SafeCallback(ColorPicker.Changed, ColorPicker.Value);
+            lib:SafeCallback(ColorPicker.Callback, ColorPicker.Value);
+            lib:SafeCallback(ColorPicker.Changed, ColorPicker.Value);
 
-            Library.Connections[#Library.Connections + 1] = Color.InputBegan:Connect(function(input)
+            lib.Connections[#lib.Connections + 1] = Color.InputBegan:Connect(function(input)
                 if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
                     if RainbowColorPicker then
                         return
@@ -2178,11 +2178,11 @@ function Library:Window(title, version, info, preset, closebind)
 
                         ColorPicker:Display()
                     end)
-                    Library:AttemptSave()
+                    lib:AttemptSave()
                 end
             end)
 
-            Library.Connections[#Library.Connections + 1] = Color.InputEnded:Connect(function(input)
+            lib.Connections[#lib.Connections + 1] = Color.InputEnded:Connect(function(input)
                 if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
                     if ColorInput then
                         ColorInput:Disconnect()
@@ -2190,7 +2190,7 @@ function Library:Window(title, version, info, preset, closebind)
                 end
             end)
 
-            Library.Connections[#Library.Connections + 1] = Hue.InputBegan:Connect(function(input)
+            lib.Connections[#lib.Connections + 1] = Hue.InputBegan:Connect(function(input)
                 if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
                     if RainbowColorPicker then
                         return
@@ -2208,11 +2208,11 @@ function Library:Window(title, version, info, preset, closebind)
 
                         ColorPicker:Display()
                     end)
-                    Library:AttemptSave()
+                    lib:AttemptSave()
                 end
             end)
 
-            Library.Connections[#Library.Connections + 1] = Hue.InputEnded:Connect(function(input)
+            lib.Connections[#lib.Connections + 1] = Hue.InputEnded:Connect(function(input)
                 if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
                     if HueInput then
                         HueInput:Disconnect()
@@ -2243,14 +2243,14 @@ function Library:Window(title, version, info, preset, closebind)
                     OldHueSelectionPosition = HueSelection.Position
 
                     while RainbowColorPicker do
-                        BoxColor.BackgroundColor3 = Color3.fromHSV(Library.RainbowColorValue, 1, 1)
-                        Color.BackgroundColor3 = Color3.fromHSV(Library.RainbowColorValue, 1, 1)
+                        BoxColor.BackgroundColor3 = Color3.fromHSV(lib.RainbowColorValue, 1, 1)
+                        Color.BackgroundColor3 = Color3.fromHSV(lib.RainbowColorValue, 1, 1)
 
                         ColorSelection.Position = UDim2.new(1, 0, 0, 0)
-                        HueSelection.Position = UDim2.new(0.48, 0, 0, Library.HueSelectionPosition)
+                        HueSelection.Position = UDim2.new(0.48, 0, 0, lib.HueSelectionPosition)
 
-                        Library:SafeCallback(ColorPicker.Callback, BoxColor.BackgroundColor3)
-                        Library:SafeCallback(ColorPicker.Changed, BoxColor.BackgroundColor3)
+                        lib:SafeCallback(ColorPicker.Callback, BoxColor.BackgroundColor3)
+                        lib:SafeCallback(ColorPicker.Changed, BoxColor.BackgroundColor3)
                         task.wait()
                     end
                 elseif not RainbowColorPicker then
@@ -2266,12 +2266,12 @@ function Library:Window(title, version, info, preset, closebind)
                     ColorSelection.Position = OldColorSelectionPosition
                     HueSelection.Position = OldHueSelectionPosition
 
-                    Library:SafeCallback(ColorPicker.Callback, BoxColor.BackgroundColor3)
-                    Library:SafeCallback(ColorPicker.Changed, BoxColor.BackgroundColor3)
+                    lib:SafeCallback(ColorPicker.Callback, BoxColor.BackgroundColor3)
+                    lib:SafeCallback(ColorPicker.Changed, BoxColor.BackgroundColor3)
                 end
             end)
 
-            Library.Connections[#Library.Connections + 1] = ConfirmBtn.MouseButton1Click:Connect(function()
+            lib.Connections[#lib.Connections + 1] = ConfirmBtn.MouseButton1Click:Connect(function()
                 ColorSelection.Visible = false
                 HueSelection.Visible = false
                 Colorpicker.Size = UDim2.new(0, 363, 0, 42)
@@ -2297,8 +2297,8 @@ function Library:Window(title, version, info, preset, closebind)
                 ColorPicker.Value = col
                 BoxColor.BackgroundColor3 = col
                 Color.BackgroundColor3 = col
-                Library:SafeCallback(ColorPicker.Callback, ColorPicker.Value);
-                Library:SafeCallback(ColorPicker.Changed, ColorPicker.Value);
+                lib:SafeCallback(ColorPicker.Callback, ColorPicker.Value);
+                lib:SafeCallback(ColorPicker.Changed, ColorPicker.Value);
             end;
 
             Options[Idx] = ColorPicker;
@@ -2426,8 +2426,8 @@ function Library:Window(title, version, info, preset, closebind)
                 TextBox.Text = "Enter Text"
                 Textbox.Value = ""
 
-                Library:SafeCallback(Textbox.Callback, Textbox.Value);
-                Library:SafeCallback(Textbox.Changed, Textbox.Value);
+                lib:SafeCallback(Textbox.Callback, Textbox.Value);
+                lib:SafeCallback(Textbox.Changed, Textbox.Value);
             end
 
             function Textbox:SetValue(Text)
@@ -2444,8 +2444,8 @@ function Library:Window(title, version, info, preset, closebind)
                 Textbox.Value = Text;
                 TextBox.Text = Text or ""
     
-                Library:SafeCallback(Textbox.Callback, Textbox.Value);
-                Library:SafeCallback(Textbox.Changed, Textbox.Value);
+                lib:SafeCallback(Textbox.Callback, Textbox.Value);
+                lib:SafeCallback(Textbox.Changed, Textbox.Value);
             end;
 
             if Textbox.Finished then
@@ -2453,13 +2453,13 @@ function Library:Window(title, version, info, preset, closebind)
                     if not enter then return end
     
                     Textbox:SetValue(TextBox.Text);
-                    Library:AttemptSave();
+                    lib:AttemptSave();
                 end)
             else
                 TextBox:GetPropertyChangedSignal('Text'):Connect(function()
                     Textbox:SetValue(TextBox.Text);
                     Textbox.LastText = TextBox.Text
-                    Library:AttemptSave();
+                    lib:AttemptSave();
                 end);
             end
 
@@ -2540,11 +2540,11 @@ function Library:Window(title, version, info, preset, closebind)
                 BindText.Text = "Enter Key"
                 Textbox.Value = ""
 
-                Library:SafeCallback(Textbox.Callback, Textbox.Value);
-                Library:SafeCallback(Textbox.Changed, Textbox.Value);
+                lib:SafeCallback(Textbox.Callback, Textbox.Value);
+                lib:SafeCallback(Textbox.Changed, Textbox.Value);
             end
 
-            Library.Connections[#Library.Connections + 1] = Bind.MouseButton1Click:Connect(function()
+            lib.Connections[#lib.Connections + 1] = Bind.MouseButton1Click:Connect(function()
                 BindText.Text = "..."
                 binding = true
                 local inputwait = InputService.InputBegan:wait()
@@ -2555,18 +2555,18 @@ function Library:Window(title, version, info, preset, closebind)
                 else
                     binding = false
                 end
-                Library:AttemptSave()
+                lib:AttemptSave()
             end)
             
-            Library.Connections[#Library.Connections + 1] = InputService.InputBegan:connect(function(current, pressed)
+            lib.Connections[#lib.Connections + 1] = InputService.InputBegan:connect(function(current, pressed)
                 if not pressed then
                     if current.KeyCode.Name == Key and binding == false and not table.find(blacklistedKeybinds, current.KeyCode) then
                         Textbox.Value = Key
-                        Library:SafeCallback(Textbox.Callback, Textbox.Value)
-                        Library:SafeCallback(Textbox.Changed, Textbox.Value)
+                        lib:SafeCallback(Textbox.Callback, Textbox.Value)
+                        lib:SafeCallback(Textbox.Changed, Textbox.Value)
                     end
                 end
-                Library:AttemptSave()
+                lib:AttemptSave()
             end)
 
             function Textbox:OnChanged(Func)
@@ -2579,8 +2579,8 @@ function Library:Window(title, version, info, preset, closebind)
     
                 BindText.Text = Text or "";
     
-                Library:SafeCallback(Textbox.Callback, Textbox.Value);
-                Library:SafeCallback(Textbox.Changed, Textbox.Value);
+                lib:SafeCallback(Textbox.Callback, Textbox.Value);
+                lib:SafeCallback(Textbox.Changed, Textbox.Value);
             end;
 
             Options[Idx] = Textbox
@@ -2592,4 +2592,11 @@ function Library:Window(title, version, info, preset, closebind)
     end
     return Content
 end
-return Library
+return lib
+
+--[[local window = lib:Window("test", "v1", "nun", Color3.fromRGB(255, 0, 0), Enum.KeyCode.LeftControl)
+
+local farm = window:Tab("Main")
+farm:MakeToggle("test", {Text = "test", Default = false, Callback = function(t)
+    --Settings.hmode = t
+end})]]--
