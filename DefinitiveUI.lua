@@ -1851,7 +1851,7 @@ function lib:Window(title, version, info, preset, closebind)
                 table.insert(Defaults, Info.Default)
             end]]--
             Options[Idx] = Dropdown;
-            print(Options[Idx])
+            --print(Options[Idx])
 
             Tab.CanvasSize = UDim2.new(0, 0, 0, TabLayout.AbsoluteContentSize.Y)
             return Dropdown;
